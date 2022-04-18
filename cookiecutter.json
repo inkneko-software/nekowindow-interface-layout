@@ -1,0 +1,6 @@
+{
+    "kind": "interface",
+    "department": "main",
+    "service_name": "demo",
+    "serviceUpper": "Demo"
+}
