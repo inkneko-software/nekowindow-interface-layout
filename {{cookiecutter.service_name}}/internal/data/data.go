@@ -2,8 +2,8 @@ package data
 
 import (
 	"context"
-	"nekowindow-backend/{{cookiecutter.kind}}/{{cookiecutter.department}}/{{cookiecutter.service_name}}/internal/conf"
-	identifyv1 "nekowindow-backend/app/service/main/identify/api/v1"
+	"nekowindow-backend/app/{{cookiecutter.kind}}/{{cookiecutter.department}}/{{cookiecutter.service_name}}/internal/conf"
+	videov1 "nekowindow-backend/app/service/main/video/api/v1"
 
 	"github.com/go-kratos/kratos/v2/log"
 	"github.com/go-kratos/kratos/v2/middleware/recovery"
@@ -13,32 +13,32 @@ import (
 )
 
 // ProviderSet is data providers.
-var ProviderSet = wire.NewSet(NewData, NewIdentifyClient)
+var ProviderSet = wire.NewSet(NewData, NewVideoClient)
 
 // Data .
 type Data struct {
 	// TODO wrapped database client
-	ic identifyv1.IdentifyClient
+	videoSvc videov1.VideoClient
 }
 
 // NewData .
 func NewData(
 	c *conf.Data,
-	ic identifyv1.IdentifyClient,
+	videoSvc videov1.VideoClient,
 	logger log.Logger,
 ) (*Data, func(), error) {
 	cleanup := func() {
 		log.NewHelper(logger).Info("closing the data resources")
 	}
 
-	return &Data{ic: ic}, cleanup, nil
+	return &Data{videoSvc: videoSvc}, cleanup, nil
 }
 
-func NewIdentifyClient(r registry.Discovery) identifyv1.IdentifyClient {
+func NewVideoClient(r registry.Discovery) videov1.VideoClient {
 
 	conn, err := grpc.DialInsecure(
 		context.Background(),
-		grpc.WithEndpoint("discovery://default/nekowindow.service.main.identify"),
+		grpc.WithEndpoint("discovery://default/nekowindow.service.main.video"),
 		grpc.WithDiscovery(r),
 		grpc.WithMiddleware(
 			recovery.Recovery(),
@@ -47,6 +47,6 @@ func NewIdentifyClient(r registry.Discovery) identifyv1.IdentifyClient {
 	if err != nil {
 		panic(err)
 	}
-	c := identifyv1.NewIdentifyClient(conn)
+	c := videov1.NewVideoClient(conn)
 	return c
 }
